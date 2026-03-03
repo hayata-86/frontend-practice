@@ -2,17 +2,61 @@
 <html lang="ja">
   <head>
     <meta charset="UTF-8" />
-    <title>Frontend Practice</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Fronted Practice</title>
+    <link rel="stylesheet" href="style.css" />
   </head>
+
   <body>
-    <header><h1>Frontend Practice</h1></header>
-    <main>
-      <input type="text" placeholder="検索キーワード" />
-      <ul>
-        <li>サンプルデータ1</li>
-        <li>サンプルデータ2</li>
-      </ul>
+    <!--ヘッダー-->
+    <header class="header">
+      <h1 class="header__title">商品一覧</h1>
+    </header>
+
+    <main class="main">
+      <!--検索エリア-->
+      <section class="search">
+        <h2 class="section-title">検索</h2>
+        <form class="search__form">
+          <label for="keyword" class="search__label">キーワード</label>
+          <input
+            type="text"
+            id="keyword"
+            name="keyword"
+            class="search__input"
+            placeholder="商品名を入力"
+            />
+            <button type="submit" class="search__button">検索</button>
+        </form>
+      </section>
+
+      <!-- 商品リスト -->
+       <section class="product">
+        <h2 class="section-title">商品リスト</h2>
+        <ul class="product__list" id="productList">
+          <li class="product__item">ノートPC</li>
+          <li class="product__item">キーボード</li>
+          <li class="product__item">マウス</li>
+        </ul>
+       </section>
     </main>
-    <footer><small>Day1</small></footer>
+
+     <!-- フッター -->
+     <footer class="footer">
+      <small>© 2026 Frontend Practice</small>
+    </footer>
+
+    <!--スクリプト-->
+    <!-- <script>
+      const form = document.querySelector(".search__form");
+      const input = document.querySelector(".search__input");
+
+     form.addEventListener("submit", function (event) {
+       event.preventDefault(); // ページのリロードを止める
+        alert("検索ボタンが押されました");
+      });
+    </script> -->
+
+    <script src="app.js"></script>
   </body>
 </html>
