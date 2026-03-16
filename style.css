@@ -225,3 +225,18 @@ body {
   text-decoration: line-through;
   color: #999;
 }
+
+.summary-area {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-bottom: 15px;
+  font-size: 14px;
+}
+
+.summary-area p {
+  margin: 0;
+  background: #f1f2f6;
+  padding: 8px 12px;
+  border-radius: 6px;
+}

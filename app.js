@@ -8,6 +8,11 @@ window.addEventListener("DOMContentLoaded", function () {
   const sortSelect = document.querySelector("#sortSelect");
   const statusFilter = document.querySelector("#statusFilter");
 
+  const totalCount = document.querySelector("#totalCount");
+  const visibleCount = document.querySelector("#visibleCount");
+  const completedCount = document.querySelector("#completedCount");
+  const activeCount = document.querySelector("#activeCount");
+
   const addForm = document.querySelector(".add-form");
   const addInput = document.querySelector(".add-input");
   const addButton = document.querySelector(".add-button");
@@ -75,6 +80,22 @@ window.addEventListener("DOMContentLoaded", function () {
     });
   }
 
+  function updateSummary() {
+    totalCount.textContent = products.length;
+
+    visibleCount.textContent = currentList.length;
+
+    const completedProducts = products.filter(function (product) {
+      return product.completed === true;
+    });
+    completedCount.textContent = completedProducts.length;
+
+    const activeProducts = products.filter(function (product) {
+      return product.completed === false;
+    });
+    activeCount.textContent = activeProducts.length;
+  }
+
   function showMessage(message) {
     addMessage.textContent = message;
   }
@@ -87,6 +108,8 @@ window.addEventListener("DOMContentLoaded", function () {
     productList.innerHTML = "";
 
     const sortedList = getSortedList(list);
+
+    updateSummary();
 
     if (sortedList.length === 0) {
       productList.innerHTML = '<li class="product__item">該当なし</li>';
