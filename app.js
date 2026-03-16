@@ -15,6 +15,7 @@ window.addEventListener("DOMContentLoaded", function () {
   const STORAGE_KEY = "products";
 
   let products = loadProducts();
+  let currentList = [...products];
 
   function loadProducts() {
     const savedProducts = localStorage.getItem(STORAGE_KEY);
@@ -76,7 +77,11 @@ window.addEventListener("DOMContentLoaded", function () {
           saveProducts();
         }
 
-        render(products);
+        currentList = currentList.filter(function (product) {
+          return product !== name;
+        });
+
+        render(currentList);
       });
 
       li.appendChild(span);
@@ -93,26 +98,28 @@ window.addEventListener("DOMContentLoaded", function () {
     addMessage.textContent = "";
   }
 
-  render(products);
+  render(currentList);
 
   searchForm.addEventListener("submit", function (event) {
     event.preventDefault();
 
     const keyword = searchInput.value.trim();
-    const filtered = products.filter(function (product) {
+
+    currentList = products.filter(function (product) {
       return product.includes(keyword);
     });
 
-    render(filtered);
+    render(currentList);
   });
 
   resetButton.addEventListener("click", function () {
     searchInput.value = "";
-    render(products);
+    currentList = [...products];
+    render(currentList);
   });
 
   sortSelect.addEventListener("change", function () {
-    render(products);
+    render(currentList);
   });
 
   addForm.addEventListener("submit", function (event) {
@@ -142,7 +149,13 @@ window.addEventListener("DOMContentLoaded", function () {
 
     products.push(newProduct);
     saveProducts();
-    render(products);
+
+    const keyword = searchInput.value.trim();
+    currentList = products.filter(function (product) {
+      return product.includes(keyword);
+    });
+
+    render(currentList);
 
     addInput.value = "";
     showMessage("商品を追加しました。");
