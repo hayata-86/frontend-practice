@@ -240,3 +240,34 @@ body {
   padding: 8px 12px;
   border-radius: 6px;
 }
+
+.bulk-action-area {
+  margin-bottom: 15px;
+}
+
+.clear-completed-button {
+  padding: 8px 14px;
+  background-color: #e17055;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.clear-completed-button:hover {
+  background-color: #fab1a0;
+}
+
+.export-csv-button {
+  padding: 8px 14px;
+  background-color: #0984e3;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  margin-left: 10px;
+}
+
+.export-csv-button:hover {
+  background-color: #74b9ff;
+}

@@ -7,6 +7,8 @@ window.addEventListener("DOMContentLoaded", function () {
   const resetButton = document.querySelector(".reset-button");
   const sortSelect = document.querySelector("#sortSelect");
   const statusFilter = document.querySelector("#statusFilter");
+  const clearCompletedButton = document.querySelector("#clearCompletedButton");
+  const exportCsvButton = document.querySelector("#exportCsvButton");
 
   const totalCount = document.querySelector("#totalCount");
   const visibleCount = document.querySelector("#visibleCount");
@@ -82,7 +84,6 @@ window.addEventListener("DOMContentLoaded", function () {
 
   function updateSummary() {
     totalCount.textContent = products.length;
-
     visibleCount.textContent = currentList.length;
 
     const completedProducts = products.filter(function (product) {
@@ -103,6 +104,40 @@ window.addEventListener("DOMContentLoaded", function () {
   function clearMessage() {
     addMessage.textContent = "";
   }
+
+  function exportProductsToCsv() {
+  if (products.length === 0) {
+    showMessage("出力できる商品がありません。");
+    return;
+  }
+
+  const header = ["商品名", "状態"];
+  const rows = products.map(function (product) {
+    return [
+      `"${product.name}"`,
+      product.completed ? "完了" : "未完了"
+    ];
+  });
+
+  const csvContent = [
+    header.join(","),
+    ...rows.map(function (row) {
+      return row.join(",");
+    })
+  ].join("\n");
+
+  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+
+  const link = document.createElement("a");
+  link.href = url;
+  link.download = "products.csv";
+  link.click();
+
+  URL.revokeObjectURL(url);
+
+  showMessage("CSVを出力しました。");
+}
 
   function render(list) {
     productList.innerHTML = "";
@@ -272,6 +307,41 @@ window.addEventListener("DOMContentLoaded", function () {
     editingProduct = null;
     updateCurrentList();
     render(currentList);
+  });
+
+  exportCsvButton.addEventListener("click", function () {
+    exportProductsToCsv();
+  });
+
+  clearCompletedButton.addEventListener("click", function () {
+    const hasCompleted = products.some(function (product) {
+      return product.completed === true;
+    });
+
+    if (!hasCompleted) {
+      showMessage("削除できる完了済み商品がありません。");
+      return;
+    }
+
+    products = products.filter(function (product) {
+      return product.completed === false;
+    });
+
+    saveProducts();
+
+    if (editingProduct !== null) {
+      const stillExists = products.some(function (product) {
+        return product.name === editingProduct;
+      });
+
+      if (!stillExists) {
+        editingProduct = null;
+      }
+    }
+
+    updateCurrentList();
+    render(currentList);
+    showMessage("完了済み商品を一括削除しました。");
   });
 
   addForm.addEventListener("submit", function (event) {
