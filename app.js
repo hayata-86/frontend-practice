@@ -48,6 +48,22 @@ window.addEventListener("DOMContentLoaded", function () {
     return copiedList;
   }
 
+  function updateCurrentListByKeyword() {
+    const keyword = searchInput.value.trim();
+
+    currentList = products.filter(function (product) {
+      return product.includes(keyword);
+    });
+  }
+
+  function showMessage(message) {
+    addMessage.textContent = message;
+  }
+
+  function clearMessage() {
+    addMessage.textContent = "";
+  }
+
   function render(list) {
     productList.innerHTML = "";
 
@@ -65,6 +81,48 @@ window.addEventListener("DOMContentLoaded", function () {
       const span = document.createElement("span");
       span.textContent = name;
 
+      const buttonArea = document.createElement("div");
+      buttonArea.className = "product__button-area";
+
+      const editButton = document.createElement("button");
+      editButton.className = "edit-button";
+      editButton.textContent = "編集";
+
+      editButton.addEventListener("click", function () {
+        const editedName = prompt("新しい商品名を入力してください", name);
+
+        if (editedName === null) {
+          return;
+        }
+
+        const trimmedName = editedName.trim();
+
+        if (trimmedName === "") {
+          showMessage("商品名を入力してください。");
+          return;
+        }
+
+        const isDuplicate = products.some(function (product) {
+          return product === trimmedName && product !== name;
+        });
+
+        if (isDuplicate) {
+          showMessage("同じ商品名は設定できません。");
+          return;
+        }
+
+        const index = products.indexOf(name);
+
+        if (index !== -1) {
+          products[index] = trimmedName;
+          saveProducts();
+        }
+
+        updateCurrentListByKeyword();
+        render(currentList);
+        showMessage("商品名を変更しました。");
+      });
+
       const deleteButton = document.createElement("button");
       deleteButton.className = "delete-button";
       deleteButton.textContent = "削除";
@@ -77,38 +135,25 @@ window.addEventListener("DOMContentLoaded", function () {
           saveProducts();
         }
 
-        currentList = currentList.filter(function (product) {
-          return product !== name;
-        });
-
+        updateCurrentListByKeyword();
         render(currentList);
+        showMessage("商品を削除しました。");
       });
 
+      buttonArea.appendChild(editButton);
+      buttonArea.appendChild(deleteButton);
+
       li.appendChild(span);
-      li.appendChild(deleteButton);
+      li.appendChild(buttonArea);
       productList.appendChild(li);
     }
-  }
-
-  function showMessage(message) {
-    addMessage.textContent = message;
-  }
-
-  function clearMessage() {
-    addMessage.textContent = "";
   }
 
   render(currentList);
 
   searchForm.addEventListener("submit", function (event) {
     event.preventDefault();
-
-    const keyword = searchInput.value.trim();
-
-    currentList = products.filter(function (product) {
-      return product.includes(keyword);
-    });
-
+    updateCurrentListByKeyword();
     render(currentList);
   });
 
@@ -150,11 +195,7 @@ window.addEventListener("DOMContentLoaded", function () {
     products.push(newProduct);
     saveProducts();
 
-    const keyword = searchInput.value.trim();
-    currentList = products.filter(function (product) {
-      return product.includes(keyword);
-    });
-
+    updateCurrentListByKeyword();
     render(currentList);
 
     addInput.value = "";

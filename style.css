@@ -159,3 +159,21 @@ body {
 .sort-select {
   padding: 6px 10px;
 }
+
+.product__button-area {
+  display: flex;
+  gap: 8px;
+}
+
+.edit-button {
+  padding: 6px 12px;
+  background-color: #0984e3;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.edit-button:hover {
+  background-color: #74b9ff;
+}
