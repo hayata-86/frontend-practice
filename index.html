@@ -25,6 +25,7 @@
             placeholder="商品名を入力"
           />
           <button type="submit" class="search__button">検索</button>
+          <button type="button" class="reset-button">リセット</button>
         </form>
       </section>
 
@@ -39,10 +40,20 @@
           />
           <button type="button" class="add-button">追加</button>
         </form>
+
+        <p class="add-message"></p>
       </section>
 
       <section class="product">
         <h2 class="section-title">商品リスト</h2>
+        <div class="sort-area">
+          <label for="sortSelect">並び替え</label>
+          <select id="sortSelect" class="sort-select">
+            <option value="default">並び替えなし</option>
+            <option value="asc">昇順</option>
+            <option value="desc">降順</option>
+          </select>
+        </div>
         <ul class="product__list" id="productList"></ul>
       </section>
     </main>

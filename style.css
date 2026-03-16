@@ -130,3 +130,32 @@ body {
 .delete-button:hover {
   background-color: #ff7675;
 }
+
+.reset-button {
+  padding: 8px 15px;
+  background-color: #636e72;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+.reset-button:hover {
+  background-color: #b2bec3;
+}
+
+.add-message {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #d63031;
+}
+
+.sort-area {
+  margin-bottom: 15px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sort-select {
+  padding: 6px 10px;
+}
