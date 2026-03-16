@@ -16,6 +16,7 @@ window.addEventListener("DOMContentLoaded", function () {
 
   let products = loadProducts();
   let currentList = [...products];
+  let editingProduct = null;
 
   function loadProducts() {
     const savedProducts = localStorage.getItem(STORAGE_KEY);
@@ -78,73 +79,108 @@ window.addEventListener("DOMContentLoaded", function () {
       const li = document.createElement("li");
       li.className = "product__item";
 
-      const span = document.createElement("span");
-      span.textContent = name;
+      if (editingProduct === name) {
+        const editInput = document.createElement("input");
+        editInput.className = "edit-input";
+        editInput.value = name;
 
-      const buttonArea = document.createElement("div");
-      buttonArea.className = "product__button-area";
+        const buttonArea = document.createElement("div");
+        buttonArea.className = "product__button-area";
 
-      const editButton = document.createElement("button");
-      editButton.className = "edit-button";
-      editButton.textContent = "編集";
+        const saveButton = document.createElement("button");
+        saveButton.className = "save-button";
+        saveButton.textContent = "保存";
 
-      editButton.addEventListener("click", function () {
-        const editedName = prompt("新しい商品名を入力してください", name);
+        saveButton.addEventListener("click", function () {
+          const trimmedName = editInput.value.trim();
 
-        if (editedName === null) {
-          return;
-        }
+          if (trimmedName === "") {
+            showMessage("商品名を入力してください。");
+            return;
+          }
 
-        const trimmedName = editedName.trim();
+          const isDuplicate = products.some(function (product) {
+            return product === trimmedName && product !== name;
+          });
 
-        if (trimmedName === "") {
-          showMessage("商品名を入力してください。");
-          return;
-        }
+          if (isDuplicate) {
+            showMessage("同じ商品名は設定できません。");
+            return;
+          }
 
-        const isDuplicate = products.some(function (product) {
-          return product === trimmedName && product !== name;
+          const index = products.indexOf(name);
+
+          if (index !== -1) {
+            products[index] = trimmedName;
+            saveProducts();
+          }
+
+          editingProduct = null;
+          updateCurrentListByKeyword();
+          render(currentList);
+          showMessage("商品名を変更しました。");
         });
 
-        if (isDuplicate) {
-          showMessage("同じ商品名は設定できません。");
-          return;
-        }
+        const cancelButton = document.createElement("button");
+        cancelButton.className = "cancel-button";
+        cancelButton.textContent = "キャンセル";
 
-        const index = products.indexOf(name);
+        cancelButton.addEventListener("click", function () {
+          editingProduct = null;
+          render(currentList);
+          clearMessage();
+        });
 
-        if (index !== -1) {
-          products[index] = trimmedName;
-          saveProducts();
-        }
+        buttonArea.appendChild(saveButton);
+        buttonArea.appendChild(cancelButton);
 
-        updateCurrentListByKeyword();
-        render(currentList);
-        showMessage("商品名を変更しました。");
-      });
+        li.appendChild(editInput);
+        li.appendChild(buttonArea);
+      } else {
+        const span = document.createElement("span");
+        span.textContent = name;
 
-      const deleteButton = document.createElement("button");
-      deleteButton.className = "delete-button";
-      deleteButton.textContent = "削除";
+        const buttonArea = document.createElement("div");
+        buttonArea.className = "product__button-area";
 
-      deleteButton.addEventListener("click", function () {
-        const index = products.indexOf(name);
+        const editButton = document.createElement("button");
+        editButton.className = "edit-button";
+        editButton.textContent = "編集";
 
-        if (index !== -1) {
-          products.splice(index, 1);
-          saveProducts();
-        }
+        editButton.addEventListener("click", function () {
+          editingProduct = name;
+          clearMessage();
+          render(currentList);
+        });
 
-        updateCurrentListByKeyword();
-        render(currentList);
-        showMessage("商品を削除しました。");
-      });
+        const deleteButton = document.createElement("button");
+        deleteButton.className = "delete-button";
+        deleteButton.textContent = "削除";
 
-      buttonArea.appendChild(editButton);
-      buttonArea.appendChild(deleteButton);
+        deleteButton.addEventListener("click", function () {
+          const index = products.indexOf(name);
 
-      li.appendChild(span);
-      li.appendChild(buttonArea);
+          if (index !== -1) {
+            products.splice(index, 1);
+            saveProducts();
+          }
+
+          if (editingProduct === name) {
+            editingProduct = null;
+          }
+
+          updateCurrentListByKeyword();
+          render(currentList);
+          showMessage("商品を削除しました。");
+        });
+
+        buttonArea.appendChild(editButton);
+        buttonArea.appendChild(deleteButton);
+
+        li.appendChild(span);
+        li.appendChild(buttonArea);
+      }
+
       productList.appendChild(li);
     }
   }
@@ -153,12 +189,14 @@ window.addEventListener("DOMContentLoaded", function () {
 
   searchForm.addEventListener("submit", function (event) {
     event.preventDefault();
+    editingProduct = null;
     updateCurrentListByKeyword();
     render(currentList);
   });
 
   resetButton.addEventListener("click", function () {
     searchInput.value = "";
+    editingProduct = null;
     currentList = [...products];
     render(currentList);
   });

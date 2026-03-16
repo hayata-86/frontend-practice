@@ -177,3 +177,35 @@ body {
 .edit-button:hover {
   background-color: #74b9ff;
 }
+
+.edit-input {
+  padding: 6px 10px;
+  flex: 1;
+  margin-right: 10px;
+}
+
+.save-button {
+  padding: 6px 12px;
+  background-color: #00b894;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.save-button:hover {
+  background-color: #55efc4;
+}
+
+.cancel-button {
+  padding: 6px 12px;
+  background-color: #636e72;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.cancel-button:hover {
+  background-color: #b2bec3;
+}
