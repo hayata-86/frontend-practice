@@ -6,6 +6,7 @@ window.addEventListener("DOMContentLoaded", function () {
   const productList = document.querySelector("#productList");
   const resetButton = document.querySelector(".reset-button");
   const sortSelect = document.querySelector("#sortSelect");
+  const statusFilter = document.querySelector("#statusFilter");
 
   const addForm = document.querySelector(".add-form");
   const addInput = document.querySelector(".add-input");
@@ -55,11 +56,22 @@ window.addEventListener("DOMContentLoaded", function () {
     return copiedList;
   }
 
-  function updateCurrentListByKeyword() {
+  function updateCurrentList() {
     const keyword = searchInput.value.trim();
+    const status = statusFilter.value;
 
     currentList = products.filter(function (product) {
-      return product.name.includes(keyword);
+      const matchesKeyword = product.name.includes(keyword);
+
+      let matchesStatus = true;
+
+      if (status === "active") {
+        matchesStatus = product.completed === false;
+      } else if (status === "completed") {
+        matchesStatus = product.completed === true;
+      }
+
+      return matchesKeyword && matchesStatus;
     });
   }
 
@@ -99,7 +111,7 @@ window.addEventListener("DOMContentLoaded", function () {
       checkbox.addEventListener("change", function () {
         product.completed = checkbox.checked;
         saveProducts();
-        updateCurrentListByKeyword();
+        updateCurrentList();
         render(currentList);
       });
 
@@ -136,7 +148,7 @@ window.addEventListener("DOMContentLoaded", function () {
           saveProducts();
 
           editingProduct = null;
-          updateCurrentListByKeyword();
+          updateCurrentList();
           render(currentList);
           showMessage("商品名を変更しました。");
         });
@@ -192,7 +204,7 @@ window.addEventListener("DOMContentLoaded", function () {
             editingProduct = null;
           }
 
-          updateCurrentListByKeyword();
+          updateCurrentList();
           render(currentList);
           showMessage("商品を削除しました。");
         });
@@ -211,23 +223,31 @@ window.addEventListener("DOMContentLoaded", function () {
     }
   }
 
+  updateCurrentList();
   render(currentList);
 
   searchForm.addEventListener("submit", function (event) {
     event.preventDefault();
     editingProduct = null;
-    updateCurrentListByKeyword();
+    updateCurrentList();
     render(currentList);
   });
 
   resetButton.addEventListener("click", function () {
     searchInput.value = "";
+    statusFilter.value = "all";
     editingProduct = null;
-    currentList = [...products];
+    updateCurrentList();
     render(currentList);
   });
 
   sortSelect.addEventListener("change", function () {
+    render(currentList);
+  });
+
+  statusFilter.addEventListener("change", function () {
+    editingProduct = null;
+    updateCurrentList();
     render(currentList);
   });
 
@@ -262,8 +282,7 @@ window.addEventListener("DOMContentLoaded", function () {
     });
 
     saveProducts();
-
-    updateCurrentListByKeyword();
+    updateCurrentList();
     render(currentList);
 
     addInput.value = "";
