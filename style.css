@@ -209,3 +209,19 @@ body {
 .cancel-button:hover {
   background-color: #b2bec3;
 }
+
+.product__left-area {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex: 1;
+}
+
+.product__name {
+  word-break: break-word;
+}
+
+.product__item--completed .product__name {
+  text-decoration: line-through;
+  color: #999;
+}

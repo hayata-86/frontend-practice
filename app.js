@@ -25,7 +25,13 @@ window.addEventListener("DOMContentLoaded", function () {
       return JSON.parse(savedProducts);
     }
 
-    return ["ノートPC", "キーボード", "マウス", "モニター", "USBケーブル"];
+    return [
+      { name: "ノートPC", completed: false },
+      { name: "キーボード", completed: false },
+      { name: "マウス", completed: false },
+      { name: "モニター", completed: false },
+      { name: "USBケーブル", completed: false }
+    ];
   }
 
   function saveProducts() {
@@ -38,11 +44,11 @@ window.addEventListener("DOMContentLoaded", function () {
 
     if (sortType === "asc") {
       copiedList.sort(function (a, b) {
-        return a.localeCompare(b, "ja");
+        return a.name.localeCompare(b.name, "ja");
       });
     } else if (sortType === "desc") {
       copiedList.sort(function (a, b) {
-        return b.localeCompare(a, "ja");
+        return b.name.localeCompare(a.name, "ja");
       });
     }
 
@@ -53,7 +59,7 @@ window.addEventListener("DOMContentLoaded", function () {
     const keyword = searchInput.value.trim();
 
     currentList = products.filter(function (product) {
-      return product.includes(keyword);
+      return product.name.includes(keyword);
     });
   }
 
@@ -75,14 +81,32 @@ window.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    for (const name of sortedList) {
+    for (const product of sortedList) {
       const li = document.createElement("li");
       li.className = "product__item";
 
-      if (editingProduct === name) {
+      if (product.completed) {
+        li.classList.add("product__item--completed");
+      }
+
+      const leftArea = document.createElement("div");
+      leftArea.className = "product__left-area";
+
+      const checkbox = document.createElement("input");
+      checkbox.type = "checkbox";
+      checkbox.checked = product.completed;
+
+      checkbox.addEventListener("change", function () {
+        product.completed = checkbox.checked;
+        saveProducts();
+        updateCurrentListByKeyword();
+        render(currentList);
+      });
+
+      if (editingProduct === product.name) {
         const editInput = document.createElement("input");
         editInput.className = "edit-input";
-        editInput.value = name;
+        editInput.value = product.name;
 
         const buttonArea = document.createElement("div");
         buttonArea.className = "product__button-area";
@@ -99,8 +123,8 @@ window.addEventListener("DOMContentLoaded", function () {
             return;
           }
 
-          const isDuplicate = products.some(function (product) {
-            return product === trimmedName && product !== name;
+          const isDuplicate = products.some(function (item) {
+            return item.name === trimmedName && item.name !== product.name;
           });
 
           if (isDuplicate) {
@@ -108,12 +132,8 @@ window.addEventListener("DOMContentLoaded", function () {
             return;
           }
 
-          const index = products.indexOf(name);
-
-          if (index !== -1) {
-            products[index] = trimmedName;
-            saveProducts();
-          }
+          product.name = trimmedName;
+          saveProducts();
 
           editingProduct = null;
           updateCurrentListByKeyword();
@@ -134,11 +154,15 @@ window.addEventListener("DOMContentLoaded", function () {
         buttonArea.appendChild(saveButton);
         buttonArea.appendChild(cancelButton);
 
-        li.appendChild(editInput);
+        leftArea.appendChild(checkbox);
+        leftArea.appendChild(editInput);
+
+        li.appendChild(leftArea);
         li.appendChild(buttonArea);
       } else {
         const span = document.createElement("span");
-        span.textContent = name;
+        span.textContent = product.name;
+        span.className = "product__name";
 
         const buttonArea = document.createElement("div");
         buttonArea.className = "product__button-area";
@@ -148,7 +172,7 @@ window.addEventListener("DOMContentLoaded", function () {
         editButton.textContent = "編集";
 
         editButton.addEventListener("click", function () {
-          editingProduct = name;
+          editingProduct = product.name;
           clearMessage();
           render(currentList);
         });
@@ -158,14 +182,13 @@ window.addEventListener("DOMContentLoaded", function () {
         deleteButton.textContent = "削除";
 
         deleteButton.addEventListener("click", function () {
-          const index = products.indexOf(name);
+          products = products.filter(function (item) {
+            return item.name !== product.name;
+          });
 
-          if (index !== -1) {
-            products.splice(index, 1);
-            saveProducts();
-          }
+          saveProducts();
 
-          if (editingProduct === name) {
+          if (editingProduct === product.name) {
             editingProduct = null;
           }
 
@@ -177,7 +200,10 @@ window.addEventListener("DOMContentLoaded", function () {
         buttonArea.appendChild(editButton);
         buttonArea.appendChild(deleteButton);
 
-        li.appendChild(span);
+        leftArea.appendChild(checkbox);
+        leftArea.appendChild(span);
+
+        li.appendChild(leftArea);
         li.appendChild(buttonArea);
       }
 
@@ -222,7 +248,7 @@ window.addEventListener("DOMContentLoaded", function () {
     }
 
     const isDuplicate = products.some(function (product) {
-      return product === newProduct;
+      return product.name === newProduct;
     });
 
     if (isDuplicate) {
@@ -230,7 +256,11 @@ window.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
-    products.push(newProduct);
+    products.push({
+      name: newProduct,
+      completed: false
+    });
+
     saveProducts();
 
     updateCurrentListByKeyword();
