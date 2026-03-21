@@ -6,6 +6,17 @@ HTML / CSS / JavaScript を使って作成しました。
 ## 公開URL
 https://hayata-86.github.io/frontend-practice/
 
+## 画面イメージ
+
+### 通常画面
+![通常画面](images/screenshot-home.png)
+
+### 商品追加の画面
+![フィルター画面](images/screenshot-add.png)
+
+### フィルター・完了状態の画面
+![フィルター画面](images/screenshot-filter.png)
+
 ## 主な機能
 - 商品追加
 - 商品削除
