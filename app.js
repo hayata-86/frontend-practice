@@ -25,6 +25,7 @@ window.addEventListener("DOMContentLoaded", function () {
   let products = loadProducts();
   let currentList = [...products];
   let editingProduct = null;
+  let draggedProductName = null;
 
   function loadProducts() {
     const savedProducts = localStorage.getItem(STORAGE_KEY);
@@ -106,38 +107,72 @@ window.addEventListener("DOMContentLoaded", function () {
   }
 
   function exportProductsToCsv() {
-  if (products.length === 0) {
-    showMessage("出力できる商品がありません。");
-    return;
+    if (products.length === 0) {
+      showMessage("出力できる商品がありません。");
+      return;
+    }
+
+    const header = ["商品名", "状態"];
+    const rows = products.map(function (product) {
+      return [
+        `"${product.name}"`,
+        product.completed ? "完了" : "未完了"
+      ];
+    });
+
+    const csvContent = [
+      header.join(","),
+      ...rows.map(function (row) {
+        return row.join(",");
+      })
+    ].join("\n");
+
+    const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "products.csv";
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+
+    URL.revokeObjectURL(url);
+
+    showMessage("CSVを出力しました。");
   }
 
-  const header = ["商品名", "状態"];
-  const rows = products.map(function (product) {
-    return [
-      `"${product.name}"`,
-      product.completed ? "完了" : "未完了"
-    ];
-  });
+  function moveProductBefore(draggedName, targetName) {
+    if (draggedName === targetName) {
+      return;
+    }
 
-  const csvContent = [
-    header.join(","),
-    ...rows.map(function (row) {
-      return row.join(",");
-    })
-  ].join("\n");
+    const draggedIndex = products.findIndex(function (product) {
+      return product.name === draggedName;
+    });
 
-  const blob = new Blob([csvContent], { type: "text/csv;charset=utf-8;" });
-  const url = URL.createObjectURL(blob);
+    const targetIndex = products.findIndex(function (product) {
+      return product.name === targetName;
+    });
 
-  const link = document.createElement("a");
-  link.href = url;
-  link.download = "products.csv";
-  link.click();
+    if (draggedIndex === -1 || targetIndex === -1) {
+      return;
+    }
 
-  URL.revokeObjectURL(url);
+    const draggedItem = products[draggedIndex];
+    products.splice(draggedIndex, 1);
 
-  showMessage("CSVを出力しました。");
-}
+    const newTargetIndex = products.findIndex(function (product) {
+      return product.name === targetName;
+    });
+
+    products.splice(newTargetIndex, 0, draggedItem);
+
+    saveProducts();
+    updateCurrentList();
+    render(currentList);
+    showMessage("並び順を変更しました。");
+  }
 
   function render(list) {
     productList.innerHTML = "";
@@ -151,12 +186,43 @@ window.addEventListener("DOMContentLoaded", function () {
       return;
     }
 
+    const isDraggableMode = sortSelect.value === "default";
+
     for (const product of sortedList) {
       const li = document.createElement("li");
       li.className = "product__item";
 
       if (product.completed) {
         li.classList.add("product__item--completed");
+      }
+
+      if (isDraggableMode) {
+        li.draggable = true;
+        li.classList.add("product__item--draggable");
+
+        li.addEventListener("dragstart", function () {
+          draggedProductName = product.name;
+          li.classList.add("product__item--dragging");
+        });
+
+        li.addEventListener("dragend", function () {
+          draggedProductName = null;
+          li.classList.remove("product__item--dragging");
+        });
+
+        li.addEventListener("dragover", function (event) {
+          event.preventDefault();
+        });
+
+        li.addEventListener("drop", function (event) {
+          event.preventDefault();
+
+          if (!draggedProductName) {
+            return;
+          }
+
+          moveProductBefore(draggedProductName, product.name);
+        });
       }
 
       const leftArea = document.createElement("div");
@@ -301,6 +367,12 @@ window.addEventListener("DOMContentLoaded", function () {
 
   sortSelect.addEventListener("change", function () {
     render(currentList);
+
+    if (sortSelect.value === "default") {
+      showMessage("ドラッグ＆ドロップで並び替えできます。");
+    } else {
+      showMessage("昇順・降順表示中はドラッグ並び替えできません。");
+    }
   });
 
   statusFilter.addEventListener("change", function () {
